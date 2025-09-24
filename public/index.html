@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <title>4 Gewinnt Online</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(7, 60px);
+            gap: 5px;
+            margin: 20px auto;
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #ddd;
+        }
+
+        .P1 {
+            background: red;
+        }
+
+        .P2 {
+            background: yellow;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>4 Gewinnt Online</h1>
+    <div>
+        Raum-ID: <input id="room" value="test">
+        <button onclick="join()">Beitreten</button>
+    </div>
+    <h2 id="status"></h2>
+    <div id="board" class="board"></div>
+
+    <script>
+        const socket = io();
+        let player = null;
+        let currentBoard = [];
+        let myTurn = false;
+
+        function join() {
+            const roomId = document.getElementById("room").value;
+            socket.emit("joinGame", roomId);
+        }
+
+        socket.on("joined", (data) => {
+            player = "P" + data.player;
+            document.getElementById("status").innerText = "Du bist " + player;
+        });
+
+        socket.on("startGame", () => {
+            document.getElementById("status").innerText = "Spiel gestartet!";
+            myTurn = (player === "P1");
+        });
+
+        socket.on("boardUpdate", ({ board }) => {
+            currentBoard = board;
+            renderBoard();
+            myTurn = !myTurn;
+        });
+
+        socket.on("win", (winner) => {
+            document.getElementById("status").innerText = winner + " hat gewonnen!";
+        });
+
+        function renderBoard() {
+            const container = document.getElementById("board");
+            container.innerHTML = "";
+            currentBoard.forEach((row, r) => {
+                row.forEach((cell, c) => {
+                    const div = document.createElement("div");
+                    div.className = "cell " + (cell || "");
+                    div.onclick = () => {
+                        if (myTurn && !cell) {
+                            const roomId = document.getElementById("room").value;
+                            socket.emit("move", { roomId, column: c, player });
+                        }
+                    };
+                    container.appendChild(div);
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>
