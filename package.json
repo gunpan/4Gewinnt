@@ -1,0 +1,18 @@
+{
+    "name": "4gewinnt",
+    "version": "1.0.0",
+    "description": "Online 4 Gewinnt Spiel mit Node.js und Socket.io",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "engines": {
+        "node": "20.x"
+    },
+    "dependencies": {
+        "express": "^4.18.2",
+        "socket.io": "^4.7.5"
+    },
+    "author": "Dein Name",
+    "license": "MIT"
+}
